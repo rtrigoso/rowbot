@@ -1,0 +1,60 @@
+#!/usr/bin/awk -f
+
+# ksampler - a random subset picker for tabular data built in awk
+#   author - github.com/rtrigoso
+#   web    - https://renfoc.us
+# --------------------------------------------------------------------
+# Usage: 
+#   ksampler -n 20 tabular_data.csv
+#     > outputs 20 random row entries
+# --------------------------------------------------------------------
+# ARGC = count of arguments
+# ARGV = arguments array, starts from 0
+
+BEGIN {
+  if (ARGC < 2)
+    exit "missing required inputs"
+  
+  k = 1
+  i = 1
+  l = 1
+  for (x = 1; x < ARGC; x++)
+	if (ARGV[i] ~ /\-n=?[0-9]+/)
+		tmp[l] = ARGV[x]
+		delete ARGV[x]
+		l++
+		k = substr(ARGV[i],3,length(ARGV[i]))
+  
+  for (x = 1; x < ARGC; x++)
+	ARGV[x] = tmp[x]
+	
+  ARGC = length(ARGV)  
+  delete tmp
+  
+  print "----"
+}
+NR <= k {
+  r[i] = $0
+}
+{
+  x = rand() * 100000000
+  y = NR
+  z = (int(x % y) < k)
+
+  if (z > 0)
+    print i "-> " $0
+	r[i] = $0
+  
+  i++;
+}
+i > k {
+  i = 1
+}
+END {
+  j = 1
+  while (j <= length(r)) {
+	print j " => " r[j]
+	j++
+  }
+}
+
