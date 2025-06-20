@@ -5,7 +5,7 @@
 #   web    - https://renfoc.us
 # --------------------------------------------------------------------
 # Usage: 
-#   ksampler -n 20 tabular_data.csv
+#   rowbot -n 20 tabular_data.csv
 #     > outputs 20 random row entries
 # --------------------------------------------------------------------
 # ARGC = count of arguments
@@ -18,32 +18,28 @@ BEGIN {
   k = 1
   i = 1
   l = 1
-  for (x = 1; x < ARGC; x++)
-	if (ARGV[i] ~ /\-n=?[0-9]+/)
-		tmp[l] = ARGV[x]
-		delete ARGV[x]
-		l++
-		k = substr(ARGV[i],3,length(ARGV[i]))
   
-  for (x = 1; x < ARGC; x++)
-	ARGV[x] = tmp[x]
+  for (x = 1; x < ARGC; x++){
+	if (ARGV[i] ~ /\-n=?[0-9]+/) {
+	  l++
+	  k = substr(ARGV[i],3,length(ARGV[i]))
+	  delete ARGV[x]
+	}
+  }
 	
-  ARGC = length(ARGV)  
-  delete tmp
-  
-  print "----"
+  ARGC = length(ARGV)
 }
 NR <= k {
   r[i] = $0
 }
 {
-  x = rand() * 100000000
+  x = srand() * 100000000
   y = NR
-  z = (int(x % y) < k)
+  z = int(x % y) < k
 
-  if (z > 0)
-    print i "-> " $0
-	r[i] = $0
+  if (z == 1) {
+	r[i] = NR " " $0
+  }
   
   i++;
 }
@@ -53,7 +49,7 @@ i > k {
 END {
   j = 1
   while (j <= length(r)) {
-	print j " => " r[j]
+	print r[j]
 	j++
   }
 }
